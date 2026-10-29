@@ -1,0 +1,21 @@
+package pe.gob.pnp.criminalistica.equilibrat.controller.gson;
+
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
+import java.time.LocalDate;
+
+public class LocalDateAdapter extends TypeAdapter<LocalDate> {
+
+    @Override
+    public void write(JsonWriter out, LocalDate value) throws IOException {
+        out.value(value == null ? null : value.toString());
+    }
+
+    @Override
+    public LocalDate read(JsonReader in) throws IOException {
+        String valor = in.nextString();
+        return valor == null ? null : LocalDate.parse(valor);
+    }
+}

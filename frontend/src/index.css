@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --color-navy: #0a1128;
+  --color-navy-deep: #070b1c;
+  --color-navy-card: #10182f;
+  --color-brand: #2563eb;
+  --color-brand-dark: #1d4ed8;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background: #f4f6fb;
+  color: #0f172a;
+}
+
+.login-bg {
+  background:
+    radial-gradient(1200px 600px at 110% -10%, rgba(37, 99, 235, 0.18), transparent 50%),
+    radial-gradient(800px 400px at -10% 110%, rgba(37, 99, 235, 0.12), transparent 45%),
+    #0a1128;
+}
