@@ -42,7 +42,7 @@ public class InMemoryPeritoDAO implements PeritoDAO {
                 .filter(perito -> perito.getCip().equals(cip))
                 .findFirst();
     }
-
+    @SuppressWarnings("null")
     @Override
     public ImmutableList<Perito> listarTodos() {
         return ImmutableList.copyOf(almacen.values());
