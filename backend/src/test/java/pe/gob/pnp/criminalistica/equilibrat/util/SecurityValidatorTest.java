@@ -30,4 +30,35 @@ class SecurityValidatorTest {
     void validarDocumento_ochoDigitos_ok() {
         assertThat(SecurityValidator.validarDocumentoOchoDigitos("40000001")).isEqualTo("40000001");
     }
+    
+    @Test
+    @DisplayName("Documento con espacios externos debe aceptarse y normalizarse")
+    void validarDocumento_conEspacios_retornaDocumentoNormalizado() {
+        assertThat(SecurityValidator.validarDocumentoOchoDigitos("  40000001  "))
+                .isEqualTo("40000001");
+    }
+
+    @Test
+    @DisplayName("Documento nulo o vacío debe ser rechazado")
+    void validarDocumento_nuloOVacio_lanzaExcepcion() {
+        assertThatThrownBy(() -> SecurityValidator.validarDocumentoOchoDigitos(null))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        assertThatThrownBy(() -> SecurityValidator.validarDocumentoOchoDigitos("   "))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("El texto con etiquetas HTML debe ser sanitizado")
+    void sanitizarTexto_conEtiquetasHtml_eliminaEtiquetas() {
+        assertThat(SecurityValidator.sanitizarTexto("<b>Hola</b> mundo"))
+                .isEqualTo("Hola mundo");
+    }
+
+    @Test
+    @DisplayName("El texto nulo debe ser rechazado al sanitizar")
+    void sanitizarTexto_nulo_lanzaExcepcion() {
+        assertThatThrownBy(() -> SecurityValidator.sanitizarTexto(null))
+                .isInstanceOf(NullPointerException.class);
+    }
 }
