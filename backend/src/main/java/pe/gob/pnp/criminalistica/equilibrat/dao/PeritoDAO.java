@@ -5,7 +5,7 @@ import java.util.Optional;
 import pe.gob.pnp.criminalistica.equilibrat.model.Perito;
 
 /**
- * Contrato de persistencia de peritos (Inversión de Dependencias).
+ * Contrato de persistencia de peritos
  */
 public interface PeritoDAO {
 

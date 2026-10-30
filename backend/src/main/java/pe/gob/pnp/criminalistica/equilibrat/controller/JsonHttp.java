@@ -18,8 +18,7 @@ final class JsonHttp {
             .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
             .create();
 
-    private JsonHttp() {
-    }
+    private JsonHttp() {}
 
     static <T> T leer(HttpExchange exchange, Class<T> tipo) throws IOException {
         try (InputStreamReader reader = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8)) {
@@ -30,18 +29,21 @@ final class JsonHttp {
     static void responder(HttpExchange exchange, int status, Object cuerpo) throws IOException {
         byte[] bytes = GSON.toJson(cuerpo).getBytes(StandardCharsets.UTF_8);
         exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
-        exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+        agregarCors(exchange);
         exchange.sendResponseHeaders(status, bytes.length);
         exchange.getResponseBody().write(bytes);
         exchange.close();
     }
 
-    static void responderBinario(HttpExchange exchange, int status, String contentType, byte[] bytes)
-            throws IOException {
+    static void responderBinario(HttpExchange exchange, int status, String contentType, byte[] bytes) throws IOException {
         exchange.getResponseHeaders().set("Content-Type", contentType);
-        exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+        agregarCors(exchange);
         exchange.sendResponseHeaders(status, bytes.length);
         exchange.getResponseBody().write(bytes);
         exchange.close();
+    }
+
+    private static void agregarCors(HttpExchange exchange) {
+        exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
     }
 }

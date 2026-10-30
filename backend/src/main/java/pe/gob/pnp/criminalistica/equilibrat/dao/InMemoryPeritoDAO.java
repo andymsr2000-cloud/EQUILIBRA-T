@@ -8,10 +8,6 @@ import pe.gob.pnp.criminalistica.equilibrat.model.Perito;
 import pe.gob.pnp.criminalistica.equilibrat.model.RolUsuario;
 import pe.gob.pnp.criminalistica.equilibrat.util.CriptografiaUtil;
 
-/**
- * Implementación thread-safe en memoria del {@link PeritoDAO}.
- * Carga datos semilla institucionales únicos para el piloto de Tacna.
- */
 public class InMemoryPeritoDAO implements PeritoDAO {
 
     static final String CLAVE_DEMO = "EquilibraT2025";
@@ -21,14 +17,12 @@ public class InMemoryPeritoDAO implements PeritoDAO {
 
     public InMemoryPeritoDAO() {
         String hash = CriptografiaUtil.hashearPassword(CLAVE_DEMO);
-        guardar(new Perito(null, "10000001", "40000001", "Crnl. Jorge Velásquez",
-                "Jefatura Criminalística", RolUsuario.JEFATURA, 0.0, hash));
-        guardar(new Perito(null, "20000001", "40000002", "Rosa Linares",
-                "Biología Forense", RolUsuario.PERITO, 65.0, hash));
-        guardar(new Perito(null, "20000002", "40000003", "Marcos Castillo",
-                "Balística", RolUsuario.PERITO, 45.0, hash));
-        guardar(new Perito(null, "20000003", "40000004", "Elena Ríos",
-                "Química", RolUsuario.PERITO, 20.0, hash));
+        
+        // Datos semilla institucionales para el piloto
+        guardar(new Perito(null, "10000001", "40000001", "Crnl. Jorge Velásquez", "Jefatura Criminalística", RolUsuario.JEFATURA, 0.0, hash));
+        guardar(new Perito(null, "20000001", "40000002", "Rosa Linares", "Biología Forense", RolUsuario.PERITO, 65.0, hash));
+        guardar(new Perito(null, "20000002", "40000003", "Marcos Castillo", "Balística", RolUsuario.PERITO, 45.0, hash));
+        guardar(new Perito(null, "20000003", "40000004", "Elena Ríos", "Química", RolUsuario.PERITO, 20.0, hash));
     }
 
     @Override
@@ -42,6 +36,7 @@ public class InMemoryPeritoDAO implements PeritoDAO {
                 .filter(perito -> perito.getCip().equals(cip))
                 .findFirst();
     }
+
     @SuppressWarnings("null")
     @Override
     public ImmutableList<Perito> listarTodos() {
