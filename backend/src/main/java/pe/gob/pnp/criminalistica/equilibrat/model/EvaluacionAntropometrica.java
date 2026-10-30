@@ -1,10 +1,14 @@
+
 package pe.gob.pnp.criminalistica.equilibrat.model;
 
 import java.time.LocalDateTime;
 
 /**
- * Registro de evaluación antropométrica de un colaborador.
- * Almacena peso, talla, IMC calculado y el nivel de riesgo asociado.
+ * Representa el registro de una evaluación antropométrica
+ * realizada a un colaborador.
+ *
+ * Almacena sus datos físicos, el IMC obtenido,
+ * el nivel de riesgo asociado y la fecha de evaluación.
  */
 public class EvaluacionAntropometrica {
 
@@ -16,9 +20,11 @@ public class EvaluacionAntropometrica {
     private NivelRiesgo nivelRiesgo;
     private LocalDateTime fechaRegistro;
 
+    // Constructor vacío
     public EvaluacionAntropometrica() {
     }
 
+    // Constructor completo
     public EvaluacionAntropometrica(Long id, String dni, double pesoKg, double tallaM,
                                     double imc, NivelRiesgo nivelRiesgo, LocalDateTime fechaRegistro) {
         this.id = id;
@@ -30,6 +36,7 @@ public class EvaluacionAntropometrica {
         this.fechaRegistro = fechaRegistro;
     }
 
+    // Getters y Setters
     public Long getId() {
         return id;
     }
@@ -84,5 +91,27 @@ public class EvaluacionAntropometrica {
 
     public void setFechaRegistro(LocalDateTime fechaRegistro) {
         this.fechaRegistro = fechaRegistro;
+    }
+
+    /**
+     * Calcula el índice de masa corporal (IMC)
+     * utilizando el peso y la talla registrados.
+     *
+     * Fórmula: peso / (talla * talla).
+     */
+    public double calcularImc() {
+        if (tallaM <= 0) {
+            throw new IllegalStateException("La talla debe ser mayor que cero.");
+        }
+
+        return pesoKg / (tallaM * tallaM);
+    }
+
+    /**
+     * Actualiza el IMC almacenado utilizando
+     * los valores actuales de peso y talla.
+     */
+    public void actualizarImc() {
+        this.imc = calcularImc();
     }
 }

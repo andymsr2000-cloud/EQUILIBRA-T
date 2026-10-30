@@ -1,9 +1,14 @@
+
 package pe.gob.pnp.criminalistica.equilibrat.model;
 
 import java.time.LocalDateTime;
 
 /**
- * Alerta de bienestar ocupacional generada a partir de fatiga o IMC crítico/moderado.
+ * Representa una alerta de bienestar ocupacional generada
+ * a partir de condiciones de fatiga o indicadores antropométricos.
+ *
+ * Permite identificar el riesgo asociado a un perito
+ * y controlar si la alerta ha sido atendida.
  */
 public class Alerta {
 
@@ -15,9 +20,11 @@ public class Alerta {
     private LocalDateTime fecha;
     private boolean atendida;
 
+    // Constructor vacío
     public Alerta() {
     }
 
+    // Constructor completo
     public Alerta(Long id, Long peritoId, String tipo, String mensaje,
                   NivelRiesgo nivelRiesgo, LocalDateTime fecha, boolean atendida) {
         this.id = id;
@@ -29,6 +36,7 @@ public class Alerta {
         this.atendida = atendida;
     }
 
+    // Getters y Setters
     public Long getId() {
         return id;
     }
@@ -83,5 +91,19 @@ public class Alerta {
 
     public void setAtendida(boolean atendida) {
         this.atendida = atendida;
+    }
+
+    /**
+     * Marca la alerta como atendida.
+     */
+    public void marcarComoAtendida() {
+        this.atendida = true;
+    }
+
+    /**
+     * Comprueba si la alerta todavía está pendiente de atención.
+     */
+    public boolean estaPendiente() {
+        return !this.atendida;
     }
 }
