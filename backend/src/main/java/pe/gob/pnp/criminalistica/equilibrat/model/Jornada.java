@@ -1,9 +1,14 @@
+
 package pe.gob.pnp.criminalistica.equilibrat.model;
 
 import java.time.LocalDate;
 
 /**
- * Jornada laboral de un perito: horas, carga de expedientes y autopercepción de bienestar.
+ * Representa la jornada laboral de un perito.
+ *
+ * Registra las horas trabajadas, la cantidad de expedientes
+ * asignados y la autopercepción de bienestar del colaborador,
+ * permitiendo realizar un seguimiento de su carga laboral.
  */
 public class Jornada {
 
@@ -14,9 +19,11 @@ public class Jornada {
     private double autopercepcion;
     private LocalDate fecha;
 
+    // Constructor vacío
     public Jornada() {
     }
 
+    // Constructor completo
     public Jornada(Long id, Long peritoId, double horasTrabajadas, int cargaExpedientes,
                    double autopercepcion, LocalDate fecha) {
         this.id = id;
@@ -27,6 +34,7 @@ public class Jornada {
         this.fecha = fecha;
     }
 
+    // Getters y Setters
     public Long getId() {
         return id;
     }
@@ -73,5 +81,25 @@ public class Jornada {
 
     public void setFecha(LocalDate fecha) {
         this.fecha = fecha;
+    }
+
+    /**
+     * Comprueba si la jornada supera una cantidad
+     * determinada de horas trabajadas.
+     *
+     * @param limiteHoras límite de horas de referencia.
+     * @return true si las horas trabajadas superan el límite.
+     */
+    public boolean superaLimiteHoras(double limiteHoras) {
+        return horasTrabajadas > limiteHoras;
+    }
+
+    /**
+     * Comprueba si la jornada tiene expedientes asignados.
+     *
+     * @return true si existe al menos un expediente.
+     */
+    public boolean tieneExpedientes() {
+        return cargaExpedientes > 0;
     }
 }

@@ -17,7 +17,8 @@ import pe.gob.pnp.criminalistica.equilibrat.service.ReporteExcelService;
 import pe.gob.pnp.criminalistica.equilibrat.util.SecurityValidator;
 
 /**
- * Orquestador REST de evaluaciones antropométricas, catálogo de peritos y exportación Excel.
+ * Controlador REST para la gestión de evaluaciones antropométricas,
+ * consulta del catálogo de peritos y exportación de reportes en Excel.
  */
 public class EvaluacionController implements HttpHandler {
 
@@ -37,50 +38,94 @@ public class EvaluacionController implements HttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
+        // Intercepta peticiones CORS de tipo OPTIONS
+        if (manejarCors(exchange)) {
+            return;
+        }
+
+        String ruta = exchange.getRequestURI().getPath();
+        String metodo = exchange.getRequestMethod();
+
+        try {
+            if (ruta.endsWith("/excel") && "GET".equalsIgnoreCase(metodo)) {
+                procesarExportarExcel(exchange);
+                return;
+            }
+
+            if (ruta.endsWith("/peritos") && "GET".equalsIgnoreCase(metodo)) {
+                procesarListarPeritos(exchange);
+                return;
+            }
+
+            if ("POST".equalsIgnoreCase(metodo)) {
+                procesarCrearEvaluacion(exchange);
+                return;
+            }
+
+            JsonHttp.responder(exchange, 404, Map.of("error", "Recurso no encontrado"));
+
+        } catch (IllegalArgumentException e) {
+            JsonHttp.responder(exchange, 400, Map.of("error", e.getMessage()));
+        }
+    }
+
+    /**
+     * Gestiona las cabeceras de seguridad y permisos CORS (Preflight).
+     */
+    private boolean manejarCors(HttpExchange exchange) throws IOException {
         if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
             exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
             exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
             exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
             exchange.sendResponseHeaders(204, -1);
             exchange.close();
-            return;
+            return true;
         }
-        String ruta = exchange.getRequestURI().getPath();
-        try {
-            if (ruta.endsWith("/excel") && "GET".equalsIgnoreCase(exchange.getRequestMethod())) {
-                byte[] excel = reporteExcelService.exportarTablaFatiga();
-                JsonHttp.responderBinario(
-                        exchange,
-                        200,
-                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                        excel);
-                return;
-            }
-            if (ruta.endsWith("/peritos") && "GET".equalsIgnoreCase(exchange.getRequestMethod())) {
-                List<Map<String, Object>> payload = peritoDAO.listarTodos().stream()
-                        .map(this::aMapaPublico)
-                        .toList();
-                JsonHttp.responder(exchange, 200, payload);
-                return;
-            }
-            if ("POST".equalsIgnoreCase(exchange.getRequestMethod())) {
-                EvaluacionRequest request = JsonHttp.leer(exchange, EvaluacionRequest.class);
-                String dni = SecurityValidator.validarDocumentoOchoDigitos(request.dni);
-                double imc = calculadora.calcularImc(request.pesoKg, request.tallaM);
-                NivelRiesgo riesgo = calculadora.clasificarImc(imc);
-                EvaluacionAntropometrica evaluacion = new EvaluacionAntropometrica(
-                        secuencia.getAndIncrement(), dni, request.pesoKg, request.tallaM,
-                        imc, riesgo, LocalDateTime.now());
-                evaluaciones.add(evaluacion);
-                JsonHttp.responder(exchange, 201, evaluacion);
-                return;
-            }
-            JsonHttp.responder(exchange, 404, Map.of("error", "Recurso no encontrado"));
-        } catch (IllegalArgumentException e) {
-            JsonHttp.responder(exchange, 400, Map.of("error", e.getMessage()));
-        }
+        return false;
     }
 
+    /**
+     * Procesa la exportación de la tabla de fatiga a formato Excel.
+     */
+    private void procesarExportarExcel(HttpExchange exchange) throws IOException {
+        byte[] excel = reporteExcelService.exportarTablaFatiga();
+        JsonHttp.responderBinario(
+                exchange,
+                200,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                excel);
+    }
+
+    /**
+     * Obtiene y lista todos los peritos mapeados para la vista pública.
+     */
+    private void procesarListarPeritos(HttpExchange exchange) throws IOException {
+        java.util.List<java.util.Map<String, Object>> payload = peritoDAO.listarTodos().stream()
+                .map(this::aMapaPublico)
+                .toList();
+        JsonHttp.responder(exchange, 200, payload);
+    }
+
+    /**
+     * Registra una nueva evaluación antropométrica validando el DNI y calculando el IMC.
+     */
+    private void procesarCrearEvaluacion(HttpExchange exchange) throws IOException {
+        EvaluacionRequest request = JsonHttp.leer(exchange, EvaluacionRequest.class);
+        String dni = SecurityValidator.validarDocumentoOchoDigitos(request.dni);
+        double imc = calculadora.calcularImc(request.pesoKg, request.tallaM);
+        NivelRiesgo riesgo = calculadora.clasificarImc(imc);
+
+        EvaluacionAntropometrica evaluacion = new EvaluacionAntropometrica(
+                secuencia.getAndIncrement(), dni, request.pesoKg, request.tallaM,
+                imc, riesgo, LocalDateTime.now());
+
+        evaluaciones.add(evaluacion);
+        JsonHttp.responder(exchange, 201, evaluacion);
+    }
+
+    /**
+     * Mapea un objeto Perito a un formato seguro de diccionario para respuestas JSON.
+     */
     private Map<String, Object> aMapaPublico(Perito perito) {
         return Map.of(
                 "id", perito.getId(),
